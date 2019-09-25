@@ -170,7 +170,7 @@ function mkGrid(clss, id) {
 
 
 function init() {
-    //create 3x3 matrix of Tile objects
+    // create 3x3 matrix of Tile objects
     mtx = [];
     for (let i = 0; i < 3; i++) {
         let arr = [];
