@@ -48,6 +48,8 @@ function gameEnd(player) {
         alert('X Wins!');
     } else if (player == 2) {
         alert('O Wins!');
+    } else if (player == 0) {
+        alert('Cat\'s Game! (Tie)');
     }
     init();
 }
@@ -62,72 +64,101 @@ function gameEnd(player) {
 // mtx[0][2].clicked = true;
 
 // checks 3 numbers to determine if game is won
-function winChecker(a,b,c) {
-    let tot = a + b + c;
-    if (tot == 3) {
-        gameEnd(1);
-    } else if (tot == 6) {
-        gameEnd(2);
+function winChecker(a, b, c) {
+    if (a != 0 && b != 0 && c != 00) {
+        let tot = a + b + c;
+        if (tot == 3) {
+            gameEnd(1);
+        } else if (tot == 6) {
+            gameEnd(2);
+        }
     }
+}
+
+function catsGameCheck() {
+    for (let i = 0; i < mtx.length; i++) {
+        for (let id = 0; id < mtx[0].length; id++) {
+            if (mtx[i][id].clicked == false) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 // function for checking game rules
 function gameRules() {
     let arr = [];
     // loop through matrix
-    let cross1 = 0;
-    let cross2 = 0;
+    let cross1 = [];
+    let cross2 = [];
     for (let i = 0; i < mtx.length; i++) {
-        let totalx = 0;
-        let totaly = 0;
+        let totalx = [];
+        let totaly = [];
         // loop through array in matrix
         for (let id = 0; id < mtx[0].length; id++) {
             // set total to zero + break if tile hasn't been clicked
-            if (mtx[i][id].clicked == false) {
-                totalx = 0;
-                break;
-            }
-            totalx += mtx[i][id].who;
+            // if (mtx[i][id].clicked == false) {
+            //     totalx = [];
+            //     break;
+            // }
+            totalx.push(mtx[i][id].who);
+            totaly.push(mtx[id][i].who);
         }
-        for (let id = 0; id < mtx[0].length; id++) {
-            if (mtx[id][i].clicked == false) {
-                totaly = 0;
-                break;
-            }
-            totaly += mtx[id][i].who;
-        }
+        // for (let id = 0; id < mtx[0].length; id++) {
+        //     // if (mtx[id][i].clicked == false) {
+        //     //     totaly = [];
+        //     //     break;
+        //     // }
+        //     totaly.push(mtx[id][i].who);
+        // }
 
-        arr.push(totalx);
-        arr.push(totaly);
-        if (mtx[i][i].clicked == false) {
-            cross1 += mtx[i][i].who;
-        } else {
-            cross1 = 0;
-        }
+        winChecker(...totalx);
+        winChecker(...totaly);
+        // arr.push(totalx);
+        // arr.push(totaly);
 
-        if (mtx[i][mtx.length - 1 - i].clicked == false) {
-            cross2 += mtx[i][mtx.length - 1 - i].who;
-        } else {
-            cross2 = 0;
-        }
+        cross1.push(mtx[i][i].who);
+        cross2.push(mtx[i][mtx.length - 1 - i].who);
+        // if (mtx[i][i].clicked == false) {
+        //     cross1 += mtx[i][i].who;
+        // } else {
+        //     cross1 = 0;
+        // }
+
+        // if (mtx[i][mtx.length - 1 - i].clicked == false) {
+        //     cross2 += mtx[i][mtx.length - 1 - i].who;
+        // } else {
+        //     cross2 = 0;
+        // }
     }
     // console.log(cross1);
-    arr.push(cross1);
-    arr.push(cross2);
+    winChecker(...cross1);
+    winChecker(...cross2);
+    // -- Definitely could compress this all to one array and then send that to winChecker
+    // -- Would definitely be more scaleable that way
 
-    console.log({ arr });
+    // console.log({ arr });
 
-    for (let i = 0; i < arr.length; i++) {
-        // console.log({i});
-        if (arr[i] == p1win) {
-            gameEnd(1);
-        } else if (arr[i] == p2win) {
-            gameEnd(2);
-        }
+    // for (let i = 0; i < arr.length; i++) {
+    //     // console.log({i});
+    //     if (arr[i] == p1win) {
+    //         gameEnd(1);
+    //     } else if (arr[i] == p2win) {
+    //         gameEnd(2);
+    //     }
+    // }
+    if (catsGameCheck()) {
+        gameEnd(0);
     }
-
+    if (state == 1) {
+        document.getElementById('h3').textContent = 'It is X\'s turn.';
+    } else if (state == 2) {
+        document.getElementById('h3').textContent = 'It is O\'s turn.';
+    }
     console.log({ state });
     console.log(mtx);
+
 }
 
 function mkGrid(clss, id) {
@@ -155,17 +186,19 @@ function init() {
     let row = mkGrid('row justify-content-md-center', 'outsideRow');
 
     // outside col
-    let colLg = mkGrid('col', 'colLg');
-    colLg.setAttribute('class', 'col-lg-4');
+    let colLg = mkGrid('col-lg-4', 'colLg');
 
     //  3x3 grid of rows/columns
     for (let i = 0; i < mtx.length; i++) {
         let row = mkGrid('row', 'r' + i);
+        row.setAttribute('style', 'height: 100px');
         for (let id = 0; id < mtx[0].length; id++) {
-            let col = mkGrid('col border', 'c' + id);
+            let col = mkGrid('col border p-0 text-center', 'c' + id);
+            col.setAttribute('style', 'height: 100px');
             let h1 = document.createElement('h1');
+            h1.setAttribute('class', 'display-2');
             col.appendChild(h1);
-            h1.textContent = '_';
+            // h1.textContent = '_';
             // col.addEventListener('click', mtx[i][id].clickFoo);
             col.addEventListener('click', function (event) {
 
@@ -178,9 +211,31 @@ function init() {
     }
 
     row.appendChild(colLg);
-
     app.appendChild(row);
+
     state = 1;
+
+    // DEFINITELY not using bootstrap stuff efficiently here...
+    let infoRow = mkGrid('row justify-content-md-center', 'infoRow');
+    let infoColLg = mkGrid('col-lg-4', 'infoColLg');
+    let littleRow = mkGrid('row', 'littleRow');
+    let turnCol = mkGrid('col', 'turnCol')
+    let h3 = document.createElement('h3');
+    h3.setAttribute('id', 'h3');
+    h3.textContent = 'It is X\'s turn.';
+    turnCol.appendChild(h3);
+
+    let resetBtn = document.createElement('button');
+    resetBtn.setAttribute('class', 'btn btn-primary float-right');
+    resetBtn.textContent = 'Reset';
+    resetBtn.addEventListener('click', init);
+    turnCol.appendChild(resetBtn);
+
+    littleRow.appendChild(turnCol);
+    infoColLg.appendChild(littleRow);
+    infoRow.appendChild(infoColLg);
+    
+    app.appendChild(infoRow);
 }
 
 init();
