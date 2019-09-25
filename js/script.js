@@ -51,7 +51,6 @@ function gameEnd(player) {
     } else if (player == 0) {
         alert('Cat\'s Game! (Tie)');
     }
-    init();
 }
 
 
@@ -68,10 +67,12 @@ function winChecker(a, b, c) {
     if (a != 0 && b != 0 && c != 00) {
         let tot = a + b + c;
         if (tot == 3) {
-            gameEnd(1);
+            return 1;
         } else if (tot == 6) {
-            gameEnd(2);
+            return 2;
         }
+    } else {
+        return 0;
     }
 }
 
@@ -88,6 +89,7 @@ function catsGameCheck() {
 
 // function for checking game rules
 function gameRules() {
+    let somebodyWon = 0;
     let arr = [];
     // loop through matrix
     let cross1 = [];
@@ -113,8 +115,8 @@ function gameRules() {
         //     totaly.push(mtx[id][i].who);
         // }
 
-        winChecker(...totalx);
-        winChecker(...totaly);
+        somebodyWon = winChecker(...totalx);
+        somebodyWon = winChecker(...totaly);
         // arr.push(totalx);
         // arr.push(totaly);
 
@@ -133,10 +135,10 @@ function gameRules() {
         // }
     }
     // console.log(cross1);
-    winChecker(...cross1);
-    winChecker(...cross2);
+    somebodyWon = winChecker(...cross1);
+    somebodyWon = winChecker(...cross2);
     // -- Definitely could compress this all to one array and then send that to winChecker
-    // -- Would definitely be more scaleable that way
+    // -- Would be more scaleable that way
 
     // console.log({ arr });
 
@@ -148,6 +150,10 @@ function gameRules() {
     //         gameEnd(2);
     //     }
     // }
+    if (somebodyWon) {
+        gameEnd(somebodyWon);
+        init();
+    }
     if (catsGameCheck()) {
         gameEnd(0);
     }
