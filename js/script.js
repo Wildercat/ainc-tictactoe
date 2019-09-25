@@ -1,32 +1,75 @@
 const p1win = 3;
 const p2win = 6;
 var app = document.getElementById('app');
-
+var state = 0;
+var mtx = [];
 class Tile {
     constructor(who, clicked) {
         this.who = who;
         this.clicked = clicked;
     }
-}
+    // get who() {
+    //     return this._who;
+    // }
+    // set who(newWho) {
+    //     this._who = newWho;
+    // }
 
-//create 3x3 matrix of Tile objects
-mtx = [];
-for (let i = 0; i < 3; i++) {
-    let arr = [];
-    for (let i = 0; i < 3; i++) {
-        let myTile = new Tile(0, false);
-        arr.push(myTile);
+    // get clicked() {
+    //     return this._clicked;
+    // }
+
+    // set clicked(newClick) {
+    //     this._clicked = newClick;
+    // }
+
+    // if im passing the whole object, this could just be one separate function
+    clickFoo(content) {
+        console.log(this);
+        if (this.clicked == false) {
+            this.clicked = true;
+            if (state == 1) {
+                // console.log(this);
+                content.textContent = 'X';
+                this.who = 1;
+                state = 2;
+            } else if (state == 2) {
+                content.textContent = 'O';
+                this.who = 2;
+                state = 1;
+            }
+        }
+        gameRules();
     }
-    mtx.push(arr);
 }
-console.log(mtx);
+//game over alert
+function gameEnd(player) {
+    if (player == 1) {
+        alert('X Wins!');
+    } else if (player == 2) {
+        alert('O Wins!');
+    }
+    init();
+}
 
-mtx[0][0].who = 2;
-mtx[0][0].clicked = true;
-mtx[0][1].who = 2;
-mtx[0][1].clicked = true;
-mtx[0][2].who = 2;
-mtx[0][2].clicked = true;
+
+// debugging
+// mtx[0][0].who = 2;
+// mtx[0][0].clicked = true;
+// mtx[0][1].who = 2;
+// mtx[0][1].clicked = true;
+// mtx[0][2].who = 2;
+// mtx[0][2].clicked = true;
+
+// checks 3 numbers to determine if game is won
+function winChecker(a,b,c) {
+    let tot = a + b + c;
+    if (tot == 3) {
+        gameEnd(1);
+    } else if (tot == 6) {
+        gameEnd(2);
+    }
+}
 
 // function for checking game rules
 function gameRules() {
@@ -56,8 +99,17 @@ function gameRules() {
 
         arr.push(totalx);
         arr.push(totaly);
-        cross1 += mtx[i][i].who;
-        cross2 += mtx[i][mtx.length - 1 - i].who;
+        if (mtx[i][i].clicked == false) {
+            cross1 += mtx[i][i].who;
+        } else {
+            cross1 = 0;
+        }
+
+        if (mtx[i][mtx.length - 1 - i].clicked == false) {
+            cross2 += mtx[i][mtx.length - 1 - i].who;
+        } else {
+            cross2 = 0;
+        }
     }
     // console.log(cross1);
     arr.push(cross1);
@@ -66,6 +118,7 @@ function gameRules() {
     console.log({ arr });
 
     for (let i = 0; i < arr.length; i++) {
+        // console.log({i});
         if (arr[i] == p1win) {
             gameEnd(1);
         } else if (arr[i] == p2win) {
@@ -73,7 +126,10 @@ function gameRules() {
         }
     }
 
+    console.log({ state });
+    console.log(mtx);
 }
+
 function mkGrid(clss, id) {
     let row = document.createElement('div');
     row.setAttribute('class', clss);
@@ -83,6 +139,18 @@ function mkGrid(clss, id) {
 
 
 function init() {
+    //create 3x3 matrix of Tile objects
+    mtx = [];
+    for (let i = 0; i < 3; i++) {
+        let arr = [];
+        for (let i = 0; i < 3; i++) {
+            let myTile = new Tile(0, false);
+            arr.push(myTile);
+        }
+        mtx.push(arr);
+    }
+    //reset html
+    app.innerHTML = '';
     // outside row
     let row = mkGrid('row justify-content-md-center', 'outsideRow');
 
@@ -95,7 +163,15 @@ function init() {
         let row = mkGrid('row', 'r' + i);
         for (let id = 0; id < mtx[0].length; id++) {
             let col = mkGrid('col border', 'c' + id);
-            col.innerHTML = '<h1>_</h1>';
+            let h1 = document.createElement('h1');
+            col.appendChild(h1);
+            h1.textContent = '_';
+            // col.addEventListener('click', mtx[i][id].clickFoo);
+            col.addEventListener('click', function (event) {
+
+                mtx[i][id].clickFoo(h1);
+            });
+
             row.appendChild(col);
         }
         colLg.appendChild(row);
@@ -104,6 +180,7 @@ function init() {
     row.appendChild(colLg);
 
     app.appendChild(row);
+    state = 1;
 }
 
 init();
